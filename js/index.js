@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d')
 const FPS = 60
 
 let keyMap = {}
+let running = false
 
 // Sprites
 let player1
@@ -12,9 +13,14 @@ let ball
 let text
 let border
 
+
 names = [
   'govind',
-  'vincent'
+  'vincent',
+  'abhi',
+  'kaiwen',
+  'jonathan',
+  'dave'
 ]
 
 
@@ -32,6 +38,7 @@ class Ball {
     this.y = (Math.random() * (0.33 * canvas.height)) + (0.33 * canvas.height)
     this.velX = 5
     this.velY = 5
+    this.rotation = 0
 
     if (Math.random() < 0.50) this.velX *= -1
     if (Math.random() < 0.50) this.velY *= -1
@@ -41,10 +48,17 @@ class Ball {
 
 
   draw () {
-    ctx.drawImage(this.img, this.x, this.y, 100, 100)
+    if (!running) return
+
+    ctx.save()
+    ctx.translate(this.x, this.y)
+    ctx.rotate(this.rotation * Math.PI / 180)
+    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, 100, 100)
+    ctx.restore()
 
     this.x += this.velX
     this.y += this.velY
+    this.rotation += 0.5
 
     this.checkRebound(player1, player2)
   }
@@ -52,16 +66,16 @@ class Ball {
   playEffect () {
     const index = ~~(Math.random() * 3) + 1
 
-    const audio = new Audio(`assets/govind/effect${index}.mp3`)
+    const audio = new Audio(`assets/${name}/effect${index}.mp3`)
     audio.play()
   }
 
   checkRebound (p1, p2) {
-    const xLeft = this.x
-    const xRight = this.x + this.width
-    const yTop = this.y
-    const yBottom = this.y + this.height
-    const yMid = this.y + (this.height / 2)
+    const xLeft = this.x - (this.width / 2)
+    const xRight = this.x + (this.width / 2)
+    const yTop = this.y - (this.height / 2)
+    const yBottom = this.y + (this.height / 2)
+    const yMid = this.y + (this.height / 4)
 
     if (yTop <= 0 || yBottom>= canvas.height) this.velY *= -1
     else if (xLeft <= (p1.x + p1.width) && yMid >= p1.y && yMid <= (p1.y + p1.height)) {
@@ -90,11 +104,11 @@ class Ball {
 
 class Player {
   constructor (x, y) {
-    this.x = x
-    this.y = y
-
     this.width = 10
     this.height = 160
+
+    this.x = x
+    this.y = y - (this.height / 2)
 
     this.score = 0
   }
@@ -138,6 +152,17 @@ class Text {
   }
 
   draw () {
+    if (!running) {
+      ctx.font = '80px Inconsolata'
+      ctx.fillStyle = 'white'
+      ctx.fillText('INTERESTING PONG', canvas.width / 2, 250)
+
+      ctx.font = '24px Inconsolata'
+      ctx.fillStyle = 'grey'
+      ctx.fillText('PRESS SPACEBAR TO BEGIN', canvas.width / 2, canvas.height / 2)
+      return
+    }
+
     let title = this.title
     let subtitle = this.subtitle
     let scoreColor = 'grey'
@@ -161,12 +186,17 @@ class Text {
     ctx.fillStyle = scoreColor
     ctx.fillText(player1.score, canvas.width * 0.33, canvas.height / 2)
     ctx.fillText(player2.score, canvas.width * 0.66, canvas.height / 2)
+
+    // Credits
+    ctx.font = '14px Inconsolata'
+    ctx.fillStyle = 'grey'
+    ctx.fillText('Created with 2 brain cells, and a little bit of ❤ - Copyright © CF12', canvas.width / 2, canvas.height - 20)
   }
 }
 
 class Border {
   constructor () {
-    this.size = 5
+    this.size = 6
     this.triggerFrames = 0
     this.triggerColor = '#835eff'
     this.color = '#666666'
@@ -230,23 +260,28 @@ function setup () {
   text = new Text()
   player1 = new Player(30, canvas.height / 2)
   player2 = new Player(canvas.width - 40, canvas.height / 2)
+
   reset()
 
   ctx.textAlign = 'center'
 }
 
+function start () {
+  reset()
+  running = true
+}
+
 document.body.onkeydown = (e) => {
-  keyMap[e.code] = e.type == 'keydown'
+  if (running) keyMap[e.code] = e.type == 'keydown'
+
+  if (!running && e.code === 'Space') {
+    start()
+  }
 }
 
 document.body.onkeyup = (e) => {
   keyMap[e.code] = e.type == 'keydown'
 }
 
-
-
 setup()
-
-
-
 setInterval(main, 1000 / FPS)
