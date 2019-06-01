@@ -190,7 +190,7 @@ class Text {
     // Credits
     ctx.font = '14px Inconsolata'
     ctx.fillStyle = 'grey'
-    ctx.fillText('Created with 2 brain cells, and a little bit of ❤ - Copyright © CF12', canvas.width / 2, canvas.height - 20)
+    ctx.fillText('Created with ☕ - Copyright 2019 © CF12', canvas.width / 2, canvas.height - 20)
   }
 }
 
