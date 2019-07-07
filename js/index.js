@@ -2,6 +2,11 @@ const canvas = document.querySelector('.canvas')
 const ctx = canvas.getContext('2d')
 
 const FPS = 60
+const FPS_INTERVAL = FPS / 1000
+
+let now
+let then
+let elapsed
 
 let keyMap = {}
 let running = false
@@ -13,16 +18,15 @@ let ball
 let text
 let border
 
-
 names = [
   'govind',
   'vincent',
   'abhi',
   'kaiwen',
   'jonathan',
-  'dave'
+  'dave',
+  'rithvik'
 ]
-
 
 let name
 
@@ -119,13 +123,13 @@ class Player {
   }
 
   up () {
-    if (this.y - 5 < 0) return
-    this.y -= 5
+    if (this.y - 20 < 0) return
+    this.y -= 20
   }
 
   down () {
-    if (this.y + 5 + this.height > canvas.height) return
-    this.y += 5
+    if (this.y + 20 + this.height > canvas.height) return
+    this.y += 20
   }
 }
 
@@ -221,22 +225,29 @@ class Border {
   }
 }
 
-setInterval(() => {
-  if (keyMap['KeyW']) player1.up()
-  else if (keyMap['KeyS']) player1.down()
-
-  if (keyMap['ArrowUp']) player2.up()
-  else if (keyMap['ArrowDown']) player2.down()
-}, 1000 / (FPS * 4))
-
 function main () {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  requestAnimationFrame(main)
 
-  border.draw()
-  text.draw()
-  ball.draw()
-  player1.draw()
-  player2.draw()
+  now = Date.now()
+  elapsed = now - then
+
+  if (elapsed > FPS_INTERVAL) {
+    time = now - (elapsed % FPS_INTERVAL)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    border.draw()
+    text.draw()
+    ball.draw()
+    player1.draw()
+    player2.draw()
+
+    if (keyMap['KeyW']) player1.up()
+    else if (keyMap['KeyS']) player1.down()
+
+    if (keyMap['ArrowUp']) player2.up()
+    else if (keyMap['ArrowDown']) player2.down()
+  }
 }
 
 function reset () {
@@ -264,6 +275,11 @@ function setup () {
   reset()
 
   ctx.textAlign = 'center'
+
+  // Setup frame timers
+  then = Date.now()
+  startTime = then
+  main()
 }
 
 function start () {
@@ -284,4 +300,3 @@ document.body.onkeyup = (e) => {
 }
 
 setup()
-setInterval(main, 1000 / FPS)
