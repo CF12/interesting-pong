@@ -24,8 +24,7 @@ names = [
   'abhi',
   'kaiwen',
   'jonathan',
-  'dave',
-  'rithvik'
+  'dave'
 ]
 
 let name
